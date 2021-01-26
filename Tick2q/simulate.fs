@@ -32,16 +32,23 @@
         /// Create an environment from a list of variables
         /// if the environment uses a list then this is just the identity function!
         let createEnv (initData: Variable list) : Environment = 
-            failwithf "createEnv not implemented"
+            let newData = List.map (fun x -> ("", x)) initData
+            Map.ofList newData
+            
+            
 
         /// Lookup a variable's value in envt from its name. If no such variable
         /// exists return an error saying that with useful diagnostic info.
         let varLookup (vName: string) (envt:Environment) : Result<Wire,string> =
-            failwithf "varLookup not implemented"
+            let found = Map.tryFind vName envt
+            match found with
+            | Some found -> Ok One
+            | None -> Error "The Variable you were looking for is not in this environment"
         
         /// Given a variable name, a new variable value, and an envt, return an updated
         /// envt changing the variable value to the specified new value.
         let updateEnvt (vName: string) (newValue: Result<Wire,string>) (env: Environment) =
+            
             failwithf "updateEnvt not implemented"
     
     //-------------------------------------------------------
