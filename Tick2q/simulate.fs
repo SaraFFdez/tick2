@@ -32,7 +32,7 @@
         /// Create an environment from a list of variables
         /// if the environment uses a list then this is just the identity function!
         let createEnv (initData: Variable list) : Environment = 
-            let newData = List.map (fun x -> ("", x)) initData
+            let newData = List.map (fun x -> (x.Name, x)) initData
             Map.ofList newData
             
             
@@ -43,13 +43,14 @@
             let found = Map.tryFind vName envt
             match found with
             | Some found -> Ok One
-            | None -> Error "The Variable you were looking for is not in this environment"
+            | None -> Error "The Variable you were looking for is not in this Environment"
         
         /// Given a variable name, a new variable value, and an envt, return an updated
         /// envt changing the variable value to the specified new value.
         let updateEnvt (vName: string) (newValue: Result<Wire,string>) (env: Environment) =
-            
-            failwithf "updateEnvt not implemented"
+            let newValueVar = {Name = vName; UpdateFn = id ;Value= newValue} //whats UpdateFn
+            let m0 = Map.remove vName env
+            Map.add vName newValueVar m0
     
     //-------------------------------------------------------
     // Code here is independent of environment implementation
