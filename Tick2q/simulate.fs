@@ -42,7 +42,7 @@
         let varLookup (vName: string) (envt:Environment) : Result<Wire,string> =
             let found = Map.tryFind vName envt
             match found with
-            | Some found -> Ok One
+            | Some found -> found.Value
             | None -> Error "The Variable you were looking for is not in this Environment"
         
         /// Given a variable name, a new variable value, and an envt, return an updated
@@ -83,35 +83,46 @@
         
     /// Ok constant logic value
     let wConst (w: Wire): Update =
-        fun _ -> Ok w
-       // if w = One 
-        //then Ok w
-        //else Error w
+        fun env -> Ok w
         
 
     /// Logic AND function
     let wAnd (f1: Update) (f2:Update) : Update =
-       
-        match f1, f2 with
-        |f1.Wire, f2.Wire-> Ok w
-        | _, _ -> Error w
-        failwithf "wOr not implemented"
+        fun env -> 
+            match (f1 env, f2 env) with
+            |Ok One, Ok One-> Ok One
+            |Ok x, Ok y-> Ok Zero
+            |Error w, Ok Zero -> Ok Zero
+            |Ok Zero, Error w -> Ok Zero
+            |Error w, Ok One -> Error w
+            |Ok One, Error w -> Error w
+            |Error g, Error f -> Error g
+            
         
     /// Logic OR function
     let wOr (f1: Update) (f2:Update) : Update =
-        match f1 , f2 with
-        | _ , Ok -> Ok 
-        | Ok, _ -> Ok
-        | _, _ -> Error
-        failwithf "wOr not implemented"
+        fun env -> 
+            match (f1 env, f2 env) with
+            |Ok Zero, Ok Zero-> Ok Zero
+            |Ok x, Ok y-> Ok One
+            |Error w, Ok One -> Ok One
+            |Ok One, Error w -> Ok One
+            |Error w, Ok Zero -> Error w
+            |Ok Zero, Error w -> Error w
+            |Error g, Error f -> Error g
 
     /// Logic XOR function
     let wXor (f1: Update) (f2:Update) : Update =
-        match f1 , f2 with
-        | Error , Ok -> Ok 
-        | Ok, Error -> Ok
-        | _, _ -> Error
-        failwithf "wXor not implemented"
+        fun env -> 
+            match (f1 env, f2 env) with
+            |Ok One, Ok One-> Ok Zero
+            |Ok Zero, Ok Zero-> Ok Zero
+            |Ok x, Ok y-> Ok One
+            |Error w, Ok One -> Ok One
+            |Ok One, Error w -> Ok One
+            |Error w, Ok Zero -> Error w
+            |Ok Zero, Error w -> Error w
+            |Error g, Error f -> Error g
 
     /// Logic value of a named variable
     /// this is the same as varLookup
