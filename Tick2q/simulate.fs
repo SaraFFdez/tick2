@@ -48,7 +48,12 @@
         /// Given a variable name, a new variable value, and an envt, return an updated
         /// envt changing the variable value to the specified new value.
         let updateEnvt (vName: string) (newValue: Result<Wire,string>) (env: Environment) =
-            let newValueVar = {Name = vName; UpdateFn = id ;Value= newValue} //whats UpdateFn
+            let checkExist x =
+                match x with 
+                |Some x -> x
+                |None -> failwithf "The variable you tried to update is not in the environment."
+            let prevVal = checkExist (Map.tryFind vName env)
+            let newValueVar = {Name = vName; UpdateFn = prevVal.UpdateFn ;Value= newValue} 
             let m0 = Map.remove vName env
             Map.add vName newValueVar m0
     
@@ -78,18 +83,34 @@
         
     /// Ok constant logic value
     let wConst (w: Wire): Update =
-        failwithf "wconst not implemented"
+        fun _ -> Ok w
+       // if w = One 
+        //then Ok w
+        //else Error w
+        
 
     /// Logic AND function
     let wAnd (f1: Update) (f2:Update) : Update =
-        failwithf "wAnd not implemented"
+       
+        match f1, f2 with
+        |f1.Wire, f2.Wire-> Ok w
+        | _, _ -> Error w
+        failwithf "wOr not implemented"
         
     /// Logic OR function
     let wOr (f1: Update) (f2:Update) : Update =
+        match f1 , f2 with
+        | _ , Ok -> Ok 
+        | Ok, _ -> Ok
+        | _, _ -> Error
         failwithf "wOr not implemented"
 
     /// Logic XOR function
     let wXor (f1: Update) (f2:Update) : Update =
+        match f1 , f2 with
+        | Error , Ok -> Ok 
+        | Ok, Error -> Ok
+        | _, _ -> Error
         failwithf "wXor not implemented"
 
     /// Logic value of a named variable
